@@ -1,3 +1,21 @@
+<?php
+    if(isset($_GET['zip'])){
+        $page = "http://www.wunderground.com/cgi-bin/findweather/hdfForecast?query=";
+        $zip=$_GET['zip'];
+
+        $subject = `curl $page$zip`;
+        $pattern = '/(T\S+)\sis forecast to be(.+?<\/.*?>)/';
+        preg_match($pattern, $subject, $matches, PREG_OFFSET_CAPTURE);
+        if($matches){
+            $when = $matches[1][0];
+            $what = $matches[2][0];
+            print("<div id='zip'>$zip</div>");
+            print("<div id='when'>$when</div>");
+            print("<div id='what'>$what</div>");
+        }
+    }
+    else{
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -32,10 +50,10 @@
         $.ajax({
             url: page,
             dataType: 'html',
-            success: getweather
+            success: tryit
         });}
 
-    function getweather(json){
+    function tryit(json){
         $("#searchcontrol").html("");
         $("#searchcontrol").replaceWith(json.replace(/<span.+?>/g, ""));
         $("#what").html("<a target='_blank' href='http://www.wunderground.com/cgi-bin/findweather/hdfForecast?query="+$("#zip").html()+"'>"+$("#what").html()+"</a>");
@@ -49,3 +67,4 @@
     <div id="searchcontrol">Loading...</div>
   </body>
 </html>
+<?php } ?>
